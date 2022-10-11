@@ -3,11 +3,10 @@ using System.Collections.Generic;
 
 namespace GildedRose
 {
-    class Program
+    public class Program
     {
-        IList<Item> Items;
-        static void Main(string[] args)
-        {
+        public IList<Item> Items;
+        public static void Main(string[] args) {
             System.Console.WriteLine("OMGHAI!");
 
             var app = new Program()
@@ -40,9 +39,7 @@ namespace GildedRose
 				// this conjured item does not work properly yet
 				new Item { Name = "Conjured Mana Cake", SellIn = 3, Quality = 6 }
                                           }
-
                           };
-
             for (var i = 0; i < 31; i++)
             {
                 Console.WriteLine("-------- day " + i + " --------");
@@ -54,9 +51,8 @@ namespace GildedRose
                 Console.WriteLine("");
                 app.UpdateQuality();
             }
-
         }
-
+        
         public void UpdateQuality()
         {
             for (var i = 0; i < Items.Count; i++)
@@ -66,6 +62,10 @@ namespace GildedRose
                     if (Items[i].Quality > 0)
                     {
                         if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
+                        {
+                            Items[i].Quality = Items[i].Quality - 1;
+                        }
+                        if (Items[i].Name == "Conjured Mana Cake")
                         {
                             Items[i].Quality = Items[i].Quality - 1;
                         }
@@ -132,7 +132,6 @@ namespace GildedRose
                 }
             }
         }
-
     }
 
     public class Item
@@ -142,6 +141,22 @@ namespace GildedRose
         public int SellIn { get; set; }
 
         public int Quality { get; set; }
+
+        public bool IsLegendary { get; set; }
+
+        public bool IsConjured { get; set; }
+
+        public bool IsBackstagePass { get; set; }
+
+        public bool IsAgedBrie { get; set; }
+
+        public Item()
+        {
+            IsLegendary = false;
+            IsConjured = false;
+            IsBackstagePass = false;
+            IsAgedBrie = false;
+        }
     }
 
 }
