@@ -6,39 +6,25 @@ namespace GildedRose
     public class Program
     {
         public IList<Item> Items;
-        public static void Main(string[] args) {
+        public static void Main(string[] args) 
+        { 
             System.Console.WriteLine("OMGHAI!");
 
             var app = new Program()
                           {
                               Items = new List<Item>
-                                          {
-                new Item { Name = "+5 Dexterity Vest", SellIn = 10, Quality = 20 },
-                new Item { Name = "Aged Brie", SellIn = 2, Quality = 0 },
-                new Item { Name = "Elixir of the Mongoose", SellIn = 5, Quality = 7 },
-                new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 80 },
-                new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = -1, Quality = 80 },
-                new Item
-                {
-                    Name = "Backstage passes to a TAFKAL80ETC concert",
-                    SellIn = 15,
-                    Quality = 20
-                },
-                new Item
-                {
-                    Name = "Backstage passes to a TAFKAL80ETC concert",
-                    SellIn = 10,
-                    Quality = 49
-                },
-                new Item
-                {
-                    Name = "Backstage passes to a TAFKAL80ETC concert",
-                    SellIn = 5,
-                    Quality = 49
-                },
-				// this conjured item does not work properly yet
-				new Item { Name = "Conjured Mana Cake", SellIn = 3, Quality = 6 }
-                                          }
+                                    {
+                                    new subItem ("+5 Dexterity Vest", 10, 20),
+                                    new subItem ("Aged Brie", 2, 0, isAgedBrie: true),
+                                    new subItem ("Elixir of the Mongoose", 5, 7),
+                                    new subItem ("Sulfuras, Hand of Ragnaros", 0, 80, isLegendary: true),
+                                    new subItem("Sulfuras, Hand of Ragnaros", -1, 80, isLegendary: true),
+                                    new subItem("Backstage passes to a TAFKAL80ETC concert", 15, 20, isBackstagePass: true),
+                                    new subItem("Backstage passes to a TAFKAL80ETC concert", 10, 49, isBackstagePass: true),
+                                    new subItem("Backstage passes to a TAFKAL80ETC concert", 5, 49, isBackstagePass: true),
+                                    // this conjured item does not work properly yet
+                                    new subItem("Conjured Mana Cake", 3, 6, isConjured: true)
+                                    }
                           };
             for (var i = 0; i < 31; i++)
             {
@@ -53,7 +39,8 @@ namespace GildedRose
             }
         }
         
-        public void UpdateQuality()
+        [Obsolete("This method is deprecated, please use UpdateQuality() instead.")]
+        public void OldUpdateQuality()
         {
             for (var i = 0; i < Items.Count; i++)
             {
@@ -132,7 +119,17 @@ namespace GildedRose
                 }
             }
         }
+
+        public void UpdateQuality()
+        {
+            foreach (subItem item in Items)
+            {
+                item.updateItem();
+            }
+        }        
     }
+
+
 
     public class Item
     {
@@ -141,22 +138,89 @@ namespace GildedRose
         public int SellIn { get; set; }
 
         public int Quality { get; set; }
-
-        public bool IsLegendary { get; set; }
-
-        public bool IsConjured { get; set; }
-
-        public bool IsBackstagePass { get; set; }
-
-        public bool IsAgedBrie { get; set; }
-
-        public Item()
-        {
-            IsLegendary = false;
-            IsConjured = false;
-            IsBackstagePass = false;
-            IsAgedBrie = false;
-        }
     }
 
+    public class subItem : Item
+    {
+        public bool isLegendary { get; set; }
+
+        public bool isConjured { get; set; }
+
+        public bool isBackstagePass { get; set; }
+
+        public bool isAgedBrie { get; set; }
+
+        public subItem(string Name, int SellIn, int Quality, bool isLegendary = false, bool isConjured = false, bool isBackstagePass = false, bool isAgedBrie = false)
+        {
+            this.Name = Name;
+            this.SellIn = SellIn;
+            this.Quality = Quality;
+            this.isLegendary = isLegendary;
+            this.isConjured = isConjured;
+            this.isBackstagePass = isBackstagePass;
+            this.isAgedBrie = isAgedBrie;
+        }
+        
+        public void updateItem()
+        {
+            if (this.isLegendary) return;
+
+            updateSellIn();         
+            
+            if (this.isConjured)
+            {
+                if (this.SellIn > 0)
+                    this.Quality -= 2;
+                else
+                    this.Quality -= 4;
+                qualityWithinLimits();
+                return;
+            }
+            
+            if (this.isAgedBrie)
+            {
+                if (this.SellIn >= 0)
+                    this.Quality += 1;
+                else
+                    this.Quality += 2;
+                qualityWithinLimits();
+                return;
+            }
+
+            if (this.isBackstagePass)
+            {
+                if (this.SellIn >= 10)
+                    this.Quality += 1;
+                else if (this.SellIn >= 5)
+                    this.Quality += 2;
+                else if (this.SellIn >= 0)
+                    this.Quality += 3;
+                else
+                    this.Quality = 0;
+                qualityWithinLimits();
+                return;
+            }
+
+            
+
+            this.Quality -= 1;
+            qualityWithinLimits();
+            
+        }
+
+        public void updateSellIn()
+        {
+            if (this.isLegendary) return;
+            this.SellIn -= 1;
+        }
+
+        public void qualityWithinLimits()
+        {
+            if (this.Quality < 0)
+                this.Quality = 0;
+            if (this.Quality > 50)
+                this.Quality = 50;
+        }
+        
+    }
 }
